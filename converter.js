@@ -27,7 +27,13 @@ export function convertFacebookUrl(input) {
   }
 
   if (/^\/share(?:\/|$)/i.test(url.pathname)) {
-    throw new Error('This share link needs a Facebook lookup first, so it cannot be converted offline.');
+    const suffix = `${url.pathname}${url.search}${url.hash}`;
+    return {
+      ownerId: null,
+      postId: null,
+      facebookUrl: `https://www.facebook.com${suffix}`,
+      facebedUrl: `https://facebed.seria.moe${suffix}`,
+    };
   }
 
   const postMatch = url.pathname.match(/^\/([^/]+)\/posts\/([^/?#]+)\/?$/i);
