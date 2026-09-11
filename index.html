@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Convert Facebook story.php and permalink.php URLs into legacy /posts/ links for Facebed or Facebook.">
+  <meta name="description" content="Convert Facebook share links for Facebed, or turn story.php and permalink.php URLs into legacy /posts/ links.">
   <meta name="theme-color" content="#111318">
   <title>FB Legacy Link Converter</title>
   <link rel="stylesheet" href="./styles.css">
@@ -13,19 +13,19 @@
     <section class="card">
       <p class="eyebrow">Facebook utility</p>
       <h1>Legacy Link Converter</h1>
-      <p class="intro">Paste a Facebook <code>story.php</code> or <code>permalink.php</code> URL with numeric IDs. Conversion happens only in your browser.</p>
+      <p class="intro">Paste a Facebook <code>/share/...</code>, <code>story.php</code>, or <code>permalink.php</code> URL. Conversion happens only in your browser.</p>
       <label for="source-url">Facebook URL</label>
-      <textarea id="source-url" rows="4" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://www.facebook.com/story.php?story_fbid=1540017758168298&id=100064802645943"></textarea>
+      <textarea id="source-url" rows="4" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://www.facebook.com/share/19JxnSRAxJ/"></textarea>
       <div class="actions">
         <button id="paste-button" class="secondary" type="button">Paste</button>
         <button id="clear-button" class="ghost" type="button">Clear</button>
       </div>
       <p id="status" class="status" role="status" aria-live="polite"></p>
       <div id="results" class="results" hidden>
-        <article class="result primary-result"><div class="result-heading"><div><span class="result-label">Facebed</span><strong>Discord-ready legacy URL</strong></div><button class="copy-button" type="button" data-copy-target="facebed-url">Copy</button></div><input id="facebed-url" class="output" readonly aria-label="Facebed legacy URL"></article>
-        <article class="result"><div class="result-heading"><div><span class="result-label">Facebook</span><strong>Legacy post URL</strong></div><button class="copy-button" type="button" data-copy-target="facebook-url">Copy</button></div><input id="facebook-url" class="output" readonly aria-label="Facebook legacy URL"></article>
+        <article class="result primary-result"><div class="result-heading"><div><span class="result-label">Facebed</span><strong>Discord-ready Facebed URL</strong></div><button class="copy-button" type="button" data-copy-target="facebed-url">Copy</button></div><input id="facebed-url" class="output" readonly aria-label="Facebed URL"></article>
+        <article class="result"><div class="result-heading"><div><span class="result-label">Facebook</span><strong>Facebook URL</strong></div><button class="copy-button" type="button" data-copy-target="facebook-url">Copy</button></div><input id="facebook-url" class="output" readonly aria-label="Facebook URL"></article>
       </div>
-      <details><summary>Supported formats</summary><div class="help"><code>story.php?story_fbid=POST_ID&amp;id=OWNER_ID</code><code>permalink.php?story_fbid=POST_ID&amp;id=OWNER_ID</code><code>/OWNER_ID/posts/POST_ID</code><p><code>/share/...</code> and <code>pfbid...</code> cannot be converted offline because they do not expose both numeric IDs.</p></div></details>
+      <details><summary>Supported formats</summary><div class="help"><code>/share/SHARE_ID</code><code>story.php?story_fbid=POST_ID&amp;id=OWNER_ID</code><code>permalink.php?story_fbid=POST_ID&amp;id=OWNER_ID</code><code>/OWNER_ID/posts/POST_ID</code><p><code>/share/...</code> links are rewritten directly to <code>facebed.seria.moe</code>. Numeric story/permalink links are converted to the legacy <code>/OWNER_ID/posts/POST_ID</code> form.</p></div></details>
     </section>
   </main>
   <script type="module" src="./app.js"></script>
