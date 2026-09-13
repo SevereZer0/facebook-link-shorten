@@ -36,6 +36,17 @@ export function convertFacebookUrl(input) {
     };
   }
 
+  const reelMatch = url.pathname.match(/^\/reel\/(\d+)\/?$/i);
+  if (reelMatch) {
+    const suffix = `${url.pathname}${url.search}${url.hash}`;
+    return {
+      ownerId: null,
+      postId: reelMatch[1],
+      facebookUrl: `https://www.facebook.com${suffix}`,
+      facebedUrl: `https://facebed.seria.moe${suffix}`,
+    };
+  }
+
   const groupMatch = url.pathname.match(/^\/groups\/(\d+)\/posts\/(\d+)\/?$/i);
   if (groupMatch) {
     const suffix = `${url.pathname}${url.search}${url.hash}`;
