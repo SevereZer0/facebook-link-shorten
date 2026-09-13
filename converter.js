@@ -47,6 +47,21 @@ export function convertFacebookUrl(input) {
     };
   }
 
+  if (/^\/watch\/?$/i.test(url.pathname)) {
+    const videoId = url.searchParams.get('v')?.trim() ?? '';
+    if (!NUMERIC_ID.test(videoId)) {
+      throw new Error('This watch URL needs a numeric v value.');
+    }
+
+    const suffix = `${url.pathname}${url.search}${url.hash}`;
+    return {
+      ownerId: null,
+      postId: videoId,
+      facebookUrl: `https://www.facebook.com${suffix}`,
+      facebedUrl: `https://facebed.seria.moe${suffix}`,
+    };
+  }
+
   const groupMatch = url.pathname.match(/^\/groups\/(\d+)\/posts\/(\d+)\/?$/i);
   if (groupMatch) {
     const suffix = `${url.pathname}${url.search}${url.hash}`;
