@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Convert Facebook share and group post links for Facebed, or turn story.php and permalink.php URLs into legacy /posts/ links.">
+  <meta name="description" content="Convert Facebook links to Facebed while preserving the original Facebook path, query, and hash. Numeric story.php and permalink.php links are shortened to legacy /posts/ links when possible.">
   <meta name="theme-color" content="#111318">
   <title>FB Legacy Link Converter</title>
   <link rel="stylesheet" href="./styles.css">
@@ -13,9 +13,9 @@
     <section class="card">
       <p class="eyebrow">Facebook utility</p>
       <h1>Legacy Link Converter</h1>
-      <p class="intro">Paste a Facebook <code>/share/...</code>, group post, <code>story.php</code>, or <code>permalink.php</code> URL. Conversion happens only in your browser.</p>
+      <p class="intro">Paste any Facebook URL. The original path, query, and hash are preserved and rewritten for Facebed. Numeric <code>story.php</code> and <code>permalink.php</code> links are shortened to legacy <code>/posts/</code> links when possible. Conversion happens only in your browser.</p>
       <label for="source-url">Facebook URL</label>
-      <textarea id="source-url" rows="4" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://www.facebook.com/groups/1006188764076791/posts/1834172614611731/"></textarea>
+      <textarea id="source-url" rows="4" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://www.facebook.com/groups/example/posts/1234567890/"></textarea>
       <div class="actions">
         <button id="paste-button" class="secondary" type="button">Paste</button>
         <button id="clear-button" class="ghost" type="button">Clear</button>
@@ -25,7 +25,7 @@
         <article class="result primary-result"><div class="result-heading"><div><span class="result-label">Facebed</span><strong>Discord-ready Facebed URL</strong></div><button class="copy-button" type="button" data-copy-target="facebed-url">Copy</button></div><input id="facebed-url" class="output" readonly aria-label="Facebed URL"></article>
         <article class="result"><div class="result-heading"><div><span class="result-label">Facebook</span><strong>Facebook URL</strong></div><button class="copy-button" type="button" data-copy-target="facebook-url">Copy</button></div><input id="facebook-url" class="output" readonly aria-label="Facebook URL"></article>
       </div>
-      <details><summary>Supported formats</summary><div class="help"><code>/share/SHARE_ID</code><code>/groups/GROUP_ID/posts/POST_ID</code><code>story.php?story_fbid=POST_ID&amp;id=OWNER_ID</code><code>permalink.php?story_fbid=POST_ID&amp;id=OWNER_ID</code><code>/OWNER_ID/posts/POST_ID</code><p><code>/share/...</code> and group post links are rewritten directly to <code>facebed.seria.moe</code>. Numeric story/permalink links are converted to the legacy <code>/OWNER_ID/posts/POST_ID</code> form.</p></div></details>
+      <details><summary>Supported formats</summary><div class="help"><p>All URLs on <code>facebook.com</code> and its subdomains are accepted, including common forms such as:</p><code>/reel/VIDEO_ID</code><code>/watch/?v=VIDEO_ID</code><code>/USERNAME/videos/VIDEO_ID</code><code>/photo/?fbid=PHOTO_ID</code><code>/share/...</code><code>/groups/GROUP_ID_OR_SLUG/posts/POST_ID</code><code>/groups/GROUP_ID_OR_SLUG/permalink/POST_ID</code><code>/USERNAME/posts/POST_ID_OR_PFBID</code><code>story.php?story_fbid=POST_ID&amp;id=OWNER_ID</code><code>permalink.php?story_fbid=POST_ID&amp;id=OWNER_ID</code><p>Unknown or future Facebook routes are passed through unchanged except for the domain, so they do not need individual support rules. Numeric legacy post URLs are still normalized to <code>/OWNER_ID/posts/POST_ID</code> where possible.</p></div></details>
     </section>
   </main>
   <script type="module" src="./app.js"></script>
