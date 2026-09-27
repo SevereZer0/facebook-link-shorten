@@ -3,9 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Convert Facebook links to Facebed while preserving the original Facebook path, query, and hash. Numeric story.php and permalink.php links are shortened to legacy /posts/ links when possible.">
+  <meta name="description" content="Convert Facebook links to Facebed while preserving the original Facebook path, query, and hash.">
   <meta name="theme-color" content="#111318">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>FB Legacy Link Converter</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -13,33 +16,34 @@
     <section class="card">
       <p class="eyebrow">Facebook utility</p>
       <h1>Legacy Link Converter</h1>
-      <p class="intro">Paste any Facebook URL. The original path, query, and hash are preserved and rewritten for Facebed. Numeric <code>story.php</code> and <code>permalink.php</code> links are shortened to legacy <code>/posts/</code> links when possible. Conversion happens only in your browser.</p>
+      <p class="intro">Paste a Facebook URL or share a link directly from Facebook/Facebook Lite after installing this app. Conversion happens only in your browser.</p>
       <label for="source-url">Facebook URL</label>
-      <textarea id="source-url" rows="4" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://www.facebook.com/groups/example/posts/1234567890/"></textarea>
+      <textarea id="source-url" rows="4" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://www.facebook.com/share/p/..."></textarea>
       <div class="actions">
         <button id="paste-button" class="secondary" type="button">Paste</button>
         <button id="clear-button" class="ghost" type="button">Clear</button>
+        <button id="install-button" class="ghost" type="button" hidden>Install app</button>
       </div>
       <p id="status" class="status" role="status" aria-live="polite"></p>
-      <section id="debug-panel" class="debug-panel" hidden>
-        <div class="debug-heading">
-          <div>
-            <span class="result-label">Clipboard debug</span>
-            <strong>Paste failure details</strong>
-          </div>
-          <div class="debug-actions">
-            <button id="copy-debug-button" class="copy-button" type="button">Copy Debug</button>
-            <button id="hide-debug-button" class="ghost" type="button">Hide</button>
-          </div>
-        </div>
-        <textarea id="debug-output" class="debug-output" rows="16" readonly aria-label="Clipboard debug output"></textarea>
-        <p class="debug-note">This report does not include your clipboard contents.</p>
-      </section>
       <div id="results" class="results" hidden>
         <article class="result primary-result"><div class="result-heading"><div><span class="result-label">Facebed</span><strong>Discord-ready Facebed URL</strong></div><button class="copy-button" type="button" data-copy-target="facebed-url">Copy</button></div><input id="facebed-url" class="output" readonly aria-label="Facebed URL"></article>
         <article class="result"><div class="result-heading"><div><span class="result-label">Facebook</span><strong>Facebook URL</strong></div><button class="copy-button" type="button" data-copy-target="facebook-url">Copy</button></div><input id="facebook-url" class="output" readonly aria-label="Facebook URL"></article>
       </div>
-      <details><summary>Supported formats</summary><div class="help"><p>All URLs on <code>facebook.com</code> and its subdomains are accepted, including common forms such as:</p><code>/reel/VIDEO_ID</code><code>/watch/?v=VIDEO_ID</code><code>/USERNAME/videos/VIDEO_ID</code><code>/photo/?fbid=PHOTO_ID</code><code>/share/...</code><code>/groups/GROUP_ID_OR_SLUG/posts/POST_ID</code><code>/groups/GROUP_ID_OR_SLUG/permalink/POST_ID</code><code>/USERNAME/posts/POST_ID_OR_PFBID</code><code>story.php?story_fbid=POST_ID&amp;id=OWNER_ID</code><code>permalink.php?story_fbid=POST_ID&amp;id=OWNER_ID</code><p>Unknown or future Facebook routes are passed through unchanged except for the domain, so they do not need individual support rules. Numeric legacy post URLs are still normalized to <code>/OWNER_ID/posts/POST_ID</code> where possible.</p></div></details>
+      <details>
+        <summary>Supported formats</summary>
+        <div class="help">
+          <p>Common Facebook links are accepted, including:</p>
+          <code>/share/p/...</code>
+          <code>/reel/VIDEO_ID</code>
+          <code>/watch/?v=VIDEO_ID</code>
+          <code>/USERNAME/videos/VIDEO_ID</code>
+          <code>/photo/?fbid=PHOTO_ID</code>
+          <code>/groups/GROUP_ID_OR_SLUG/posts/POST_ID</code>
+          <code>/USERNAME/posts/POST_ID_OR_PFBID</code>
+          <code>story.php?story_fbid=POST_ID&amp;id=OWNER_ID</code>
+          <p>After installation on a supported Android browser, this app can appear in the system share sheet for links shared from Facebook and Facebook Lite.</p>
+        </div>
+      </details>
     </section>
   </main>
   <script type="module" src="./app.js"></script>
