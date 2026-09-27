@@ -1,0 +1,29 @@
+{
+  "name": "FB Link Converter",
+  "short_name": "FB Converter",
+  "description": "Convert Facebook links to Facebed links for Discord previews.",
+  "id": "/facebook-link-shorten/",
+  "start_url": "/facebook-link-shorten/",
+  "scope": "/facebook-link-shorten/",
+  "display": "standalone",
+  "background_color": "#0d0f12",
+  "theme_color": "#111318",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/facebook-link-shorten/",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
