@@ -51,49 +51,103 @@ function manualPasteFallback() {
   }
 }
 
+function tryLegacyPaste() {
+  source.focus();
+
+  try {
+    const before = source.value;
+    const supported =
+      typeof document.execCommand === 'function' &&
+      (typeof document.queryCommandSupported !== 'function' ||
+        document.queryCommandSupported('paste'));
+
+    if (!supported) return false;
+
+    const result = document.execCommand('paste');
+    if (result || source.value !== before) {
+      render();
+      return true;
+    }
+  } catch {
+    // Continue to the next clipboard strategy.
+  }
+
+  return false;
+}
+
+function markCopied(button) {
+  const oldText = button.textContent;
+  button.textContent = 'Copied';
+  setTimeout(() => {
+    button.textContent = oldText;
+  }, 1200);
+}
+
+function tryLegacyCopy(field) {
+  try {
+    field.focus();
+    field.select();
+    return (
+      typeof document.execCommand === 'function' &&
+      document.execCommand('copy')
+    );
+  } catch {
+    return false;
+  }
+}
+
 async function copyFrom(targetId, button) {
   const field = document.querySelector(`#${targetId}`);
   if (!field?.value) return;
 
-  try {
-    await navigator.clipboard.writeText(field.value);
-    const oldText = button.textContent;
-    button.textContent = 'Copied';
-    setTimeout(() => {
-      button.textContent = oldText;
-    }, 1200);
-  } catch {
-    field.focus();
-    field.select();
-    status.textContent = 'Clipboard access was blocked. The URL is selected for manual copy.';
-    status.classList.add('error');
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(field.value);
+      markCopied(button);
+      return;
+    } catch {
+      // Android WebView-based browsers can expose Clipboard API but reject access.
+    }
   }
+
+  if (tryLegacyCopy(field)) {
+    markCopied(button);
+    return;
+  }
+
+  field.focus();
+  field.select();
+  status.classList.remove('success');
+  status.classList.add('error');
+  status.textContent = 'Automatic copy is unavailable. The URL is selected; choose Copy.';
 }
 
 source.addEventListener('input', render);
+source.addEventListener('paste', () => {
+  setTimeout(render, 0);
+});
 
 pasteButton.addEventListener('click', async () => {
   status.textContent = '';
   status.classList.remove('error', 'success');
 
-  if (!navigator.clipboard?.readText) {
-    manualPasteFallback();
-    return;
-  }
+  if (navigator.clipboard?.readText) {
+    try {
+      const clipboardText = await navigator.clipboard.readText();
 
-  try {
-    const clipboardText = await navigator.clipboard.readText();
-
-    if (!clipboardText) {
-      manualPasteFallback();
-      return;
+      if (clipboardText) {
+        source.value = clipboardText;
+        render();
+        return;
+      }
+    } catch {
+      // Fall through for browsers such as Android WebView wrappers.
     }
-
-    source.value = clipboardText;
-    render();
-  } catch {
-    manualPasteFallback();
   }
+
+  if (tryLegacyPaste()) return;
+
+  manualPasteFallback();
 });
 
 clearButton.addEventListener('click', () => {
