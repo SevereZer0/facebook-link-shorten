@@ -21,10 +21,28 @@ function buildPassthroughResult(url) {
   };
 }
 
+function normalizeInput(input) {
+  const value = String(input).trim();
+
+  if (!value) {
+    throw new Error('Enter a valid Facebook URL.');
+  }
+
+  if (value.startsWith('//')) {
+    return `https:${value}`;
+  }
+
+  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) {
+    return `https://${value}`;
+  }
+
+  return value;
+}
+
 export function convertFacebookUrl(input) {
   let url;
   try {
-    url = new URL(String(input).trim());
+    url = new URL(normalizeInput(input));
   } catch {
     throw new Error('Enter a valid Facebook URL.');
   }
