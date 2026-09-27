@@ -21,6 +21,20 @@
         <button id="clear-button" class="ghost" type="button">Clear</button>
       </div>
       <p id="status" class="status" role="status" aria-live="polite"></p>
+      <section id="debug-panel" class="debug-panel" hidden>
+        <div class="debug-heading">
+          <div>
+            <span class="result-label">Clipboard debug</span>
+            <strong>Paste failure details</strong>
+          </div>
+          <div class="debug-actions">
+            <button id="copy-debug-button" class="copy-button" type="button">Copy Debug</button>
+            <button id="hide-debug-button" class="ghost" type="button">Hide</button>
+          </div>
+        </div>
+        <textarea id="debug-output" class="debug-output" rows="16" readonly aria-label="Clipboard debug output"></textarea>
+        <p class="debug-note">This report does not include your clipboard contents.</p>
+      </section>
       <div id="results" class="results" hidden>
         <article class="result primary-result"><div class="result-heading"><div><span class="result-label">Facebed</span><strong>Discord-ready Facebed URL</strong></div><button class="copy-button" type="button" data-copy-target="facebed-url">Copy</button></div><input id="facebed-url" class="output" readonly aria-label="Facebed URL"></article>
         <article class="result"><div class="result-heading"><div><span class="result-label">Facebook</span><strong>Facebook URL</strong></div><button class="copy-button" type="button" data-copy-target="facebook-url">Copy</button></div><input id="facebook-url" class="output" readonly aria-label="Facebook URL"></article>
