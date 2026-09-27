@@ -1,4 +1,5 @@
 const NUMERIC_ID = /^\d+$/;
+const FACEBED_ORIGIN = 'https://facebed.com';
 
 function buildResult(ownerId, postId) {
   const path = `/${ownerId}/posts/${postId}`;
@@ -6,7 +7,7 @@ function buildResult(ownerId, postId) {
     ownerId,
     postId,
     facebookUrl: `https://www.facebook.com${path}`,
-    facebedUrl: `https://facebed.seria.moe${path}`,
+    facebedUrl: `${FACEBED_ORIGIN}${path}`,
   };
 }
 
@@ -16,7 +17,7 @@ function buildPassthroughResult(url) {
     ownerId: null,
     postId: null,
     facebookUrl: `https://www.facebook.com${suffix}`,
-    facebedUrl: `https://facebed.seria.moe${suffix}`,
+    facebedUrl: `${FACEBED_ORIGIN}${suffix}`,
   };
 }
 
