@@ -22,21 +22,31 @@ function buildPassthroughResult(url) {
 }
 
 function normalizeInput(input) {
-  const value = String(input).trim();
+  const value = String(input ?? '').trim();
 
   if (!value) {
     throw new Error('Enter a valid Facebook URL.');
   }
 
-  if (value.startsWith('//')) {
-    return `https:${value}`;
+  // Accept a plain URL, a URL without https://, or text copied/shared by an app
+  // that contains a Facebook URL.
+  const match = value.match(
+    /(?:https?:\/\/|\/\/)?(?:[a-z0-9-]+\.)*facebook\.com\/[^\s<>"']+/i
+  );
+
+  if (!match) {
+    throw new Error('Enter a valid Facebook URL.');
   }
 
-  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) {
-    return `https://${value}`;
+  let candidate = match[0].replace(/[),.;!?]+$/, '');
+
+  if (candidate.startsWith('//')) {
+    candidate = `https:${candidate}`;
+  } else if (!/^https?:\/\//i.test(candidate)) {
+    candidate = `https://${candidate}`;
   }
 
-  return value;
+  return candidate;
 }
 
 export function convertFacebookUrl(input) {
