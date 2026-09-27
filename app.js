@@ -38,6 +38,19 @@ function render() {
   }
 }
 
+function manualPasteFallback() {
+  status.classList.remove('error', 'success');
+  status.textContent = 'Long-press the URL box and choose Paste.';
+  source.focus();
+
+  try {
+    const end = source.value.length;
+    source.setSelectionRange(end, end);
+  } catch {
+    // Some older mobile browsers do not support setSelectionRange on textarea.
+  }
+}
+
 async function copyFrom(targetId, button) {
   const field = document.querySelector(`#${targetId}`);
   if (!field?.value) return;
@@ -60,13 +73,26 @@ async function copyFrom(targetId, button) {
 source.addEventListener('input', render);
 
 pasteButton.addEventListener('click', async () => {
+  status.textContent = '';
+  status.classList.remove('error', 'success');
+
+  if (!navigator.clipboard?.readText) {
+    manualPasteFallback();
+    return;
+  }
+
   try {
-    source.value = await navigator.clipboard.readText();
+    const clipboardText = await navigator.clipboard.readText();
+
+    if (!clipboardText) {
+      manualPasteFallback();
+      return;
+    }
+
+    source.value = clipboardText;
     render();
   } catch {
-    status.textContent = 'Clipboard access was blocked. Paste the URL into the box manually.';
-    status.classList.add('error');
-    source.focus();
+    manualPasteFallback();
   }
 });
 
