@@ -1,4 +1,4 @@
-const CACHE = 'fb-link-converter-v1';
+const CACHE = 'fb-link-converter-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +6,9 @@ const ASSETS = [
   './converter.js',
   './styles.css',
   './manifest.webmanifest',
-  './icon.svg'
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
