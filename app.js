@@ -7,10 +7,9 @@ const facebedOutput = document.querySelector('#facebed-url');
 const facebookOutput = document.querySelector('#facebook-url');
 const pasteButton = document.querySelector('#paste-button');
 const clearButton = document.querySelector('#clear-button');
-const debugPanel = document.querySelector('#debug-panel');
-const debugOutput = document.querySelector('#debug-output');
-const copyDebugButton = document.querySelector('#copy-debug-button');
-const hideDebugButton = document.querySelector('#hide-debug-button');
+const installButton = document.querySelector('#install-button');
+
+let deferredInstallPrompt = null;
 
 function clearResult() {
   results.hidden = true;
@@ -43,132 +42,41 @@ function render() {
 }
 
 function manualPasteFallback() {
-  status.classList.remove('error', 'success');
-  status.textContent = 'Automatic paste failed. Debug details are shown below.';
+  status.classList.remove('success');
+  status.classList.add('error');
+  status.textContent = 'Clipboard access was blocked. Paste the URL into the box manually.';
   source.focus();
 
   try {
     const end = source.value.length;
     source.setSelectionRange(end, end);
   } catch {
-    // Some older mobile browsers do not support setSelectionRange on textarea.
+    // Older mobile browsers may not support setSelectionRange.
   }
-}
-
-function errorInfo(error) {
-  if (!error) return null;
-  return {
-    name: error.name || error.constructor?.name || 'UnknownError',
-    message: error.message || String(error),
-  };
-}
-
-async function permissionState(name) {
-  if (!navigator.permissions?.query) return 'Permissions API unavailable';
-
-  try {
-    const result = await navigator.permissions.query({ name });
-    return result.state;
-  } catch (error) {
-    const info = errorInfo(error);
-    return `query failed: ${info?.name}: ${info?.message}`;
-  }
-}
-
-async function showPasteDebug(details) {
-  const activation = navigator.userActivation;
-  const uaData = navigator.userAgentData;
-
-  const debug = {
-    timestamp: new Date().toISOString(),
-    page: location.href,
-    secureContext: window.isSecureContext,
-    topLevelPage: window.top === window.self,
-    documentHasFocus: document.hasFocus(),
-    visibilityState: document.visibilityState,
-    clickIsTrusted: details.clickIsTrusted,
-    userActivation: activation
-      ? {
-          isActive: activation.isActive,
-          hasBeenActive: activation.hasBeenActive,
-        }
-      : 'unavailable',
-    clipboardApi: {
-      navigatorClipboard: Boolean(navigator.clipboard),
-      readText: typeof navigator.clipboard?.readText === 'function',
-      writeText: typeof navigator.clipboard?.writeText === 'function',
-      clipboardReadPermission: await permissionState('clipboard-read'),
-      clipboardWritePermission: await permissionState('clipboard-write'),
-    },
-    modernPaste: {
-      attempted: details.modernAttempted,
-      returnedEmptyString: details.modernReturnedEmpty,
-      error: errorInfo(details.modernError),
-    },
-    legacyPaste: {
-      execCommandAvailable: typeof document.execCommand === 'function',
-      queryCommandSupportedAvailable:
-        typeof document.queryCommandSupported === 'function',
-      reportedSupported: details.legacyReportedSupported,
-      attempted: details.legacyAttempted,
-      result: details.legacyResult,
-      changedFieldValue: details.legacyChangedValue,
-      error: errorInfo(details.legacyError),
-    },
-    browser: {
-      userAgent: navigator.userAgent,
-      platform: navigator.platform || 'unavailable',
-      language: navigator.language,
-      vendor: navigator.vendor || 'unavailable',
-      userAgentData: uaData
-        ? {
-            mobile: uaData.mobile,
-            platform: uaData.platform,
-            brands: uaData.brands,
-          }
-        : 'unavailable',
-    },
-    note: 'Clipboard contents are not included in this debug report.',
-  };
-
-  debugOutput.value = JSON.stringify(debug, null, 2);
-  debugPanel.hidden = false;
 }
 
 function tryLegacyPaste() {
-  const report = {
-    legacyReportedSupported: null,
-    legacyAttempted: false,
-    legacyResult: null,
-    legacyChangedValue: false,
-    legacyError: null,
-    success: false,
-  };
-
   source.focus();
 
   try {
-    if (typeof document.execCommand !== 'function') return report;
-
-    report.legacyReportedSupported =
-      typeof document.queryCommandSupported !== 'function'
-        ? null
-        : document.queryCommandSupported('paste');
-
-    if (report.legacyReportedSupported === false) return report;
-
     const before = source.value;
-    report.legacyAttempted = true;
-    report.legacyResult = document.execCommand('paste');
-    report.legacyChangedValue = source.value !== before;
-    report.success = Boolean(report.legacyResult || report.legacyChangedValue);
+    const supported =
+      typeof document.execCommand === 'function' &&
+      (typeof document.queryCommandSupported !== 'function' ||
+        document.queryCommandSupported('paste'));
 
-    if (report.success) render();
-  } catch (error) {
-    report.legacyError = error;
+    if (!supported) return false;
+
+    const result = document.execCommand('paste');
+    if (result || source.value !== before) {
+      render();
+      return true;
+    }
+  } catch {
+    // Continue to the manual fallback.
   }
 
-  return report;
+  return false;
 }
 
 function markCopied(button) {
@@ -192,33 +100,24 @@ function tryLegacyCopy(field) {
   }
 }
 
-async function copyText(text, field, button) {
+async function copyFrom(targetId, button) {
+  const field = document.querySelector(`#${targetId}`);
+  if (!field?.value) return;
+
   if (navigator.clipboard?.writeText) {
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(field.value);
       markCopied(button);
-      return true;
+      return;
     } catch {
       // Continue to legacy copy.
     }
   }
 
-  field.focus();
-  field.select();
-
   if (tryLegacyCopy(field)) {
     markCopied(button);
-    return true;
+    return;
   }
-
-  return false;
-}
-
-async function copyFrom(targetId, button) {
-  const field = document.querySelector(`#${targetId}`);
-  if (!field?.value) return;
-
-  if (await copyText(field.value, field, button)) return;
 
   field.focus();
   field.select();
@@ -227,23 +126,51 @@ async function copyFrom(targetId, button) {
   status.textContent = 'Automatic copy is unavailable. The URL is selected; choose Copy.';
 }
 
+function extractFacebookUrl(value) {
+  if (!value) return '';
+
+  const text = String(value).trim();
+
+  try {
+    const url = new URL(text);
+    const host = url.hostname.toLowerCase();
+    if (host === 'facebook.com' || host.endsWith('.facebook.com')) {
+      return url.href;
+    }
+  } catch {
+    // The shared payload may contain text plus a URL.
+  }
+
+  const match = text.match(/https?:\/\/(?:[a-z0-9-]+\.)*facebook\.com\/[^\s<>"']+/i);
+  return match ? match[0].replace(/[),.;!?]+$/, '') : '';
+}
+
+function handleIncomingShare() {
+  const params = new URLSearchParams(location.search);
+  const shared =
+    extractFacebookUrl(params.get('url')) ||
+    extractFacebookUrl(params.get('text')) ||
+    extractFacebookUrl(params.get('title'));
+
+  if (!shared) return;
+
+  source.value = shared;
+  render();
+
+  const cleanUrl = `${location.pathname}${location.hash}`;
+  history.replaceState(null, '', cleanUrl);
+}
+
 source.addEventListener('input', render);
 source.addEventListener('paste', () => {
   setTimeout(render, 0);
 });
 
-pasteButton.addEventListener('click', async (event) => {
+pasteButton.addEventListener('click', async () => {
   status.textContent = '';
   status.classList.remove('error', 'success');
-  debugPanel.hidden = true;
-
-  let modernAttempted = false;
-  let modernReturnedEmpty = false;
-  let modernError = null;
 
   if (navigator.clipboard?.readText) {
-    modernAttempted = true;
-
     try {
       const clipboardText = await navigator.clipboard.readText();
 
@@ -252,46 +179,18 @@ pasteButton.addEventListener('click', async (event) => {
         render();
         return;
       }
-
-      modernReturnedEmpty = true;
-    } catch (error) {
-      modernError = error;
+    } catch {
+      // Fall through for browsers that expose Clipboard API but deny reads.
     }
   }
 
-  const legacy = tryLegacyPaste();
-  if (legacy.success) return;
-
+  if (tryLegacyPaste()) return;
   manualPasteFallback();
-  await showPasteDebug({
-    clickIsTrusted: event.isTrusted,
-    modernAttempted,
-    modernReturnedEmpty,
-    modernError,
-    ...legacy,
-  });
-});
-
-copyDebugButton.addEventListener('click', async () => {
-  if (!debugOutput.value) return;
-
-  if (await copyText(debugOutput.value, debugOutput, copyDebugButton)) return;
-
-  debugOutput.focus();
-  debugOutput.select();
-  status.classList.remove('success');
-  status.classList.add('error');
-  status.textContent = 'Debug text is selected. Choose Copy.';
-});
-
-hideDebugButton.addEventListener('click', () => {
-  debugPanel.hidden = true;
 });
 
 clearButton.addEventListener('click', () => {
   source.value = '';
   status.textContent = '';
-  debugPanel.hidden = true;
   clearResult();
   source.focus();
 });
@@ -299,3 +198,31 @@ clearButton.addEventListener('click', () => {
 document.querySelectorAll('[data-copy-target]').forEach((button) => {
   button.addEventListener('click', () => copyFrom(button.dataset.copyTarget, button));
 });
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  installButton.hidden = false;
+});
+
+installButton.addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  installButton.hidden = true;
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  installButton.hidden = true;
+});
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js').catch(() => {
+    // The converter itself still works if service-worker registration fails.
+  });
+}
+
+handleIncomingShare();
