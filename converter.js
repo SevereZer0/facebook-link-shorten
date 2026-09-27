@@ -1,5 +1,5 @@
 const NUMERIC_ID = /^\d+$/;
-const FACEBED_ORIGIN = 'https://facebed.com';
+const FACEBED_ORIGIN = 'https://facebed.seria.moe';
 
 function buildResult(ownerId, postId) {
   const path = `/${ownerId}/posts/${postId}`;
