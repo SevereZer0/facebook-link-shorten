@@ -1,4 +1,4 @@
-import { convertFacebookUrl } from './converter.js?v=3';
+import { convertFacebookUrl } from './converter.js?v=4';
 
 const source = document.querySelector('#source-url');
 const results = document.querySelector('#results');
