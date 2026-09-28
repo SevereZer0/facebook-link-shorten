@@ -1,4 +1,4 @@
-const CACHE = 'fb-link-converter-v3';
+const CACHE = 'fb-link-converter-v4';
 const ASSETS = [
   './',
   './index.html',
