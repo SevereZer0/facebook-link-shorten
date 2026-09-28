@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Convert Facebook links to Facebed while preserving the original Facebook path, query, and hash.">
+  <meta name="description" content="Convert Facebook links to short Facebed links for Discord previews.">
   <meta name="theme-color" content="#111318">
   <meta name="mobile-web-app-capable" content="yes">
   <title>FB Legacy Link Converter</title>
@@ -32,7 +32,7 @@
       <details>
         <summary>Supported formats</summary>
         <div class="help">
-          <p>Common Facebook links are accepted, including:</p>
+          <p>Common Facebook links are accepted and shortened by removing unnecessary tracking parameters, including:</p>
           <code>/share/p/...</code>
           <code>/reel/VIDEO_ID</code>
           <code>/watch/?v=VIDEO_ID</code>
@@ -46,6 +46,6 @@
       </details>
     </section>
   </main>
-  <script type="module" src="./app.js?v=3"></script>
+  <script type="module" src="./app.js?v=4"></script>
 </body>
 </html>
