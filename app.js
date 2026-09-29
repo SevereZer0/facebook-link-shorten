@@ -41,44 +41,6 @@ function render() {
   }
 }
 
-function manualPasteFallback() {
-  status.classList.remove('success');
-  status.classList.add('error');
-  status.textContent = 'Clipboard access was blocked. Paste the URL into the box manually.';
-  source.focus();
-
-  try {
-    const end = source.value.length;
-    source.setSelectionRange(end, end);
-  } catch {
-    // Older mobile browsers may not support setSelectionRange.
-  }
-}
-
-function tryLegacyPaste() {
-  source.focus();
-
-  try {
-    const before = source.value;
-    const supported =
-      typeof document.execCommand === 'function' &&
-      (typeof document.queryCommandSupported !== 'function' ||
-        document.queryCommandSupported('paste'));
-
-    if (!supported) return false;
-
-    const result = document.execCommand('paste');
-    if (result || source.value !== before) {
-      render();
-      return true;
-    }
-  } catch {
-    // Continue to the manual fallback.
-  }
-
-  return false;
-}
-
 function markCopied(button) {
   const oldText = button.textContent;
   button.textContent = 'Copied';
@@ -167,25 +129,19 @@ source.addEventListener('paste', () => {
 });
 
 pasteButton.addEventListener('click', async () => {
-  status.textContent = '';
-  status.classList.remove('error', 'success');
-
-  if (navigator.clipboard?.readText) {
-    try {
-      const clipboardText = await navigator.clipboard.readText();
-
-      if (clipboardText) {
-        source.value = clipboardText;
-        render();
-        return;
-      }
-    } catch {
-      // Fall through for browsers that expose Clipboard API but deny reads.
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text) {
+      source.value = text;
+      render();
+      return;
     }
+  } catch {
+    // WebView or Firefox blocked clipboard access.
   }
 
-  if (tryLegacyPaste()) return;
-  manualPasteFallback();
+  source.focus();
+  alert('Please long-press and tap Paste');
 });
 
 clearButton.addEventListener('click', () => {
